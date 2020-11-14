@@ -1,0 +1,27 @@
+.crosswordPage {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.crosswordHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+
+    // @media (max-width: $MEDIA_BREAKPOINT_SM) {
+    //     flex-direction: column;
+    // }
+}
+
+.crosswordWrapper {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+
+    // @media (max-width: $MEDIA_BREAKPOINT_MD) {
+    //     flex-direction: column;
+    //     align-items: flex-start;
+    // }
+}

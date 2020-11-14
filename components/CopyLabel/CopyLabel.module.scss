@@ -1,0 +1,12 @@
+.labeled {
+    border: 1px dotted darkgray;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    padding: 5px;
+    font-family: monospace;
+    &:hover {
+        background: darkgray;
+        color: white;
+    }
+}
