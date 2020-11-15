@@ -1,6 +1,6 @@
 import CopyLabel from 'components/CopyLabel';
 import Crossword from 'components/Crossword';
-import { findPuzzleFB } from 'data/firebaseAPI';
+import { findPuzzleFB, initializeListenerFB } from 'data/firebaseAPI';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -13,40 +13,52 @@ const PuzzlePage = () => {
     const [loading, setLoading] = useState(true);
     const [puzzle, setPuzzle] = useState();
 
+    const [title, setTitle] = useState('');
+    const [author, setAuthor] = useState('');
+
     // data fetch
     useEffect(() => {
-        findPuzzleFB(puzzleId).then((res) => {
-            if (res) {
-                const p = { ...res };
-                p.puzzleId = puzzleId;
-                setPuzzle(p);
-            }
-            setLoading(false);
-        });
+        if (puzzleId) {
+            findPuzzleFB(puzzleId).then((res) => {
+                if (res) {
+                    // store entire puzzle state
+                    const p = { ...res };
+                    p.puzzleId = puzzleId;
+                    setPuzzle(p);
+
+                    // start listeners for db changes
+                    initializeListenerFB(puzzleId, 'title', setTitle);
+                    initializeListenerFB(puzzleId, 'author', setAuthor);
+                }
+                setLoading(false);
+            });
+        }
     }, [puzzleId]);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading)
+        return (
+            <div className="page">
+                <div>Loading...</div>
+            </div>
+        );
 
     if (!loading && !puzzle)
         return (
             <div className="page">
-                <div className="d-flex-column d-flex-center">
-                    <div style={{ marginBottom: '0.5rem' }}>Puzzle Not Found</div>
-                    <Link href="/" className="w-100">
-                        <a>
-                            <button className="w-100">Return Home</button>
-                        </a>
-                    </Link>
-                </div>
+                <div style={{ marginBottom: '0.5rem' }}>Puzzle Not Found</div>
+                <Link href="/" className="w-100">
+                    <a>
+                        <button className="w-100">Return Home</button>
+                    </a>
+                </Link>
             </div>
         );
 
-    console.log(styles);
     return (
-        <div className={styles.crosswordPage}>
+        <div className="page">
             <div className={styles.crosswordHeader}>
                 <div className="crossword-title">
-                    {puzzle.title}
+                    {title}
                     {/* <AutosizeInput
                         name="title"
                         value={title}
@@ -54,7 +66,7 @@ const PuzzlePage = () => {
                         inputStyle={{ fontSize: '200%', border: 'none' }}
                     /> */}
                     <span>by</span>
-                    {puzzle.author}
+                    {author}
                     {/* <AutosizeInput
                         name="author"
                         value={author}
@@ -64,12 +76,12 @@ const PuzzlePage = () => {
                 </div>
 
                 <div className="d-flex-center">
-                    Puzzle ID: <CopyLabel style={{ marginLeft: '0.5rem' }}>{puzzle.puzzleId}</CopyLabel>
+                    Puzzle ID: <CopyLabel style={{ marginLeft: '0.5rem' }}>{puzzleId}</CopyLabel>
                 </div>
             </div>
 
             <div className={styles.crosswordWrapper}>
-                <Crossword />
+                <Crossword puzzle={puzzle} />
             </div>
         </div>
     );

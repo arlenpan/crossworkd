@@ -1,6 +1,5 @@
 import firebase from 'firebase/app';
 import 'firebase/database';
-// import 'firebase/analytics';
 
 // these keys are allowed to be public
 const firebaseConfig = {
@@ -26,4 +25,3 @@ try {
 
 export const fb = fbInstance;
 export const fbdb = firebase.database();
-// export const fbanalytics = firebase.analytics();

@@ -21,10 +21,10 @@ const HomePage = () => {
     };
 
     return (
-        <div className="page">
-            <div className="d-flex-column d-flex-center">
+        <div className="page flex-center">
+            <div className="flex-center flex-column">
                 <h1 style={{ marginBottom: '2rem' }}>Crossworkd</h1>
-                <button style={{ marginBottom: '2rem' }} className="w-100" onClick={onNewPuzzleClick}>
+                <button style={{ marginBottom: '2rem' }} onClick={onNewPuzzleClick}>
                     Start New Puzzle
                 </button>
 
@@ -37,7 +37,7 @@ const HomePage = () => {
                     value={puzzleId}
                     onChange={onPuzzleIdChange}
                 />
-                <button className="w-100" onClick={onContinueClick} disabled={!puzzleId}>
+                <button onClick={onContinueClick} disabled={!puzzleId}>
                     Continue Editing
                 </button>
             </div>

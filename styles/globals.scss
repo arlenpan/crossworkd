@@ -47,26 +47,21 @@ button {
     padding: 0.5rem;
 }
 
-/* UTILITY */
+// UNIVERSAL
 
 .page {
     width: 100%;
     display: flex;
+    flex-direction: column;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-center {
+    display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-}
-
-.w-100 {
-    width: 100%;
-}
-
-.d-flex-center {
-    display: flex;
-    align-items: center;
-}
-
-.d-flex-column {
-    display: flex;
-    flex-direction: column;
 }

@@ -33,9 +33,8 @@ export const updatePuzzleFB = (puzzleId, keyword, value) => {
 
 export const initializeListenerFB = (puzzleId, keyword, cb) => {
     const ref = fbdb.ref(`puzzles/${puzzleId}/${keyword}`);
-    const callbackWrapper = (snapshot) => {
+    ref.on('value', (snapshot) => {
         const value = snapshot.val();
         cb(value);
-    };
-    ref.on('value', callbackWrapper);
+    });
 };

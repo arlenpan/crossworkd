@@ -1,0 +1,21 @@
+@mixin scrollbar($color, $bgColor) {
+    /* The emerging W3C standard
+   that is currently Firefox-only */
+    & {
+        scrollbar-width: thin;
+        scrollbar-color: $color $bgColor;
+    }
+
+    /* Works on Chrome/Edge/Safari */
+    &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+    &::-webkit-scrollbar-track {
+        background: $bgColor;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: $color;
+        border-radius: 5px;
+    }
+}
