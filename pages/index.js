@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { createNewPuzzleFB } from 'data/firebaseAPI';
+import styles from 'styles/Page.module.scss';
 
 const HomePage = () => {
     const [puzzleId, setPuzzleId] = useState('');
@@ -21,8 +22,8 @@ const HomePage = () => {
     };
 
     return (
-        <div className="page flex-center">
-            <div className="flex-center flex-column">
+        <div className={styles.page} style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                 <h1 style={{ marginBottom: '2rem' }}>Crossworkd</h1>
                 <button style={{ marginBottom: '2rem' }} onClick={onNewPuzzleClick}>
                     Start New Puzzle

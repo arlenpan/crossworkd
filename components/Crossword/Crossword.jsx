@@ -1,11 +1,14 @@
+import CopyLabel from 'components/CopyLabel';
+import { CELL_DARK_CHAR } from 'data/consts';
 import { initializeListenerFB, updatePuzzleFB } from 'data/firebaseAPI';
 import useStateRef from 'hooks/useStateRef';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { generateDefaultArray } from 'util/crosswordArray';
+import compareGrids from 'util/compareGrids';
+import { generateCrosswordNum, generateDefaultArray } from 'util/crosswordUtils';
+import styles from './Crossword.module.scss';
+import CrosswordCluesList from './CrosswordCluesList';
 import CrosswordGrid from './CrosswordGrid';
-
-const CELL_DARK_CHAR = '.';
 
 const Crossword = ({}) => {
     const router = useRouter();
@@ -18,7 +21,10 @@ const Crossword = ({}) => {
     const [mirror, setMirror, mirrorRef] = useStateRef(true);
 
     // DATA
+    const [title, setTitle] = useState('');
+    const [author, setAuthor] = useState('');
     const [clues, setClues] = useState();
+    const [numbers, setNumbers] = useState();
 
     // SETTINGS
     const [highlightMirror, setHighlightMirror] = useState(true);
@@ -28,7 +34,18 @@ const Crossword = ({}) => {
         console.log('FIREBASE', puzzleId);
 
         // initialize firebase sync
-        initializeListenerFB(puzzleId, 'grid', (grid) => setGrid(JSON.parse(grid)));
+        initializeListenerFB(puzzleId, 'grid', (g) => {
+            // diff grids to avoid unnecessary updates
+            // TODO: control updates by timestamp
+            const newGrid = JSON.parse(g);
+            const oldGrid = gridRef.current;
+            const isSame = compareGrids(newGrid, oldGrid);
+            if (!isSame) setGrid(newGrid);
+        });
+
+        // start listeners for db changes
+        initializeListenerFB(puzzleId, 'title', setTitle);
+        initializeListenerFB(puzzleId, 'author', setAuthor);
 
         // assign key handler
         document.addEventListener('keydown', onKeyDown);
@@ -36,6 +53,28 @@ const Crossword = ({}) => {
             document.removeEventListener('keydown', onKeyDown);
         };
     }, []);
+
+    // ON CROSSWORD UPDATES
+    useEffect(() => {
+        console.log('GRID UPDATE', grid);
+
+        // check if we need to update numbers
+        if (grid) {
+            const newNumbers = generateCrosswordNum(grid);
+            const isSame = compareGrids(newNumbers, numbers);
+            if (!isSame) setNumbers(newNumbers);
+        }
+    }, [grid]);
+
+    // ON NUMBER UPDATES
+    useEffect(() => {
+        console.log('NUMBERS UPDATE', numbers);
+
+        // check if we need to update clues
+        if (numbers) {
+            
+        }
+    }, [numbers]);
 
     const onKeyDown = (e) => {
         const grid = gridRef.current;
@@ -169,18 +208,75 @@ const Crossword = ({}) => {
         }
     };
 
+    // HANDLERS
+
+    const onClearClick = () => {
+        const grid = generateDefaultArray(15, 15);
+        setGrid(grid);
+        updatePuzzleFB(puzzleId, 'grid', JSON.stringify(grid));
+    };
+
+    const onMirrorClick = () => {
+        setMirror(!mirror);
+    };
+
+    const onHighlightMirrorClick = () => {
+        setHighlightMirror(!highlightMirror);
+    };
+
     return (
-        <div>
-            <CrosswordGrid
-                crossword={grid}
-                mirror={mirror}
-                highlightMirror={mirror && highlightMirror}
-                activeCell={activeCell}
-                setActiveCell={setActiveCell}
-                orientation={orientation}
-                setOrientation={setOrientation}
-            />
-        </div>
+        <>
+            <div className={styles.crosswordHeader}>
+                <div className={styles.crosswordTitle}>
+                    {title}
+                    {/* <AutosizeInput
+                        name="title"
+                        value={title}
+                        onChange={onTitleChange}
+                        inputStyle={{ fontSize: '200%', border: 'none' }}
+                    /> */}
+                    <span>by</span>
+                    {author}
+                    {/* <AutosizeInput
+                        name="author"
+                        value={author}
+                        onChange={onAuthorChange}
+                        inputStyle={{ border: 'none' }}
+                    /> */}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    Puzzle ID: <CopyLabel style={{ marginLeft: '0.5rem' }}>{puzzleId}</CopyLabel>
+                </div>
+            </div>
+
+            <div className={styles.crosswordWrapper}>
+                <CrosswordGrid
+                    crossword={grid}
+                    numbers={numbers}
+                    mirror={mirror}
+                    highlightMirror={mirror && highlightMirror}
+                    activeCell={activeCell}
+                    setActiveCell={setActiveCell}
+                    orientation={orientation}
+                    setOrientation={setOrientation}
+                />
+                <CrosswordCluesList
+                    activeCell={activeCell}
+                    numbers={numbers}
+                    orientation={orientation}
+                    clues={clues}
+                    setClues={setClues}
+                />
+            </div>
+
+            <div className={styles.crosswordFooter}>
+                <button onClick={onClearClick}>Clear</button>
+                <button onClick={onMirrorClick}>Mirroring: {mirror ? 'ON' : 'OFF'}</button>
+                <button onClick={onHighlightMirrorClick}>Highlight Mirror: {highlightMirror ? 'ON' : 'OFF'}</button>
+                {/* <button onClick={onDownloadPuzClick}>Export PUZ</button> */}
+            </div>
+        </>
     );
 };
 

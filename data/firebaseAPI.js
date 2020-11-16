@@ -1,4 +1,4 @@
-import { generateDefaultArray } from 'util/crosswordArray';
+import { generateDefaultArray } from 'util/crosswordUtils';
 import { fbdb } from './firebase';
 
 export const createNewPuzzleFB = () => {

@@ -1,0 +1,59 @@
+@import 'styles/mediaQuery';
+
+.crosswordClues {
+    flex: 1;
+    display: flex;
+    height: 592px;
+    width: 100%;
+
+    @media (max-width: $MEDIA_BREAKPOINT_MD) {
+        margin-top: 1rem;
+    }
+
+    h3 {
+        font-size: 90%;
+        margin-bottom: 1rem;
+        padding: 0 0.5rem;
+    }
+
+    h4 {
+        text-transform: uppercase;
+    }
+
+    & > div {
+        display: flex;
+        flex-direction: column;
+        width: 50%;
+        &:first-child {
+            padding-right: 1rem;
+        }
+    }
+}
+
+.crosswordCluesList {
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    & > div {
+        margin-bottom: 1rem;
+        padding: 0 0.5rem;
+    }
+
+    .active {
+        background: lightcyan;
+        input {
+            background: lightcy an;
+        }
+    }
+
+    textarea {
+        border: none;
+        outline: none;
+        resize: vertical;
+        width: 100%;
+        &:focus {
+            outline: 1px solid darkgray;
+        }
+    }
+}

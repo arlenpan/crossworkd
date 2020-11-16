@@ -11,6 +11,18 @@
     }
 }
 
+.crosswordTitle {
+    display: flex;
+    align-items: center;
+    span {
+        margin: 0 0.5rem;
+    }
+    span,
+    h2 {
+        color: darkgray;
+    }
+}
+
 .crosswordWrapper {
     display: flex;
     align-items: center;
@@ -19,5 +31,16 @@
     @media (max-width: $MEDIA_BREAKPOINT_MD) {
         flex-direction: column;
         align-items: flex-start;
+    }
+}
+
+.crosswordFooter {
+    padding: 0.5rem;
+
+    button {
+        padding: 0.2rem;
+        margin-right: 0.5rem;
+        border: none;
+        border: 1px solid darkgray;
     }
 }

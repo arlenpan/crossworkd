@@ -1,5 +1,6 @@
-import { useRef, useEffect } from 'react';
-import { generateDefaultArray } from 'util/crosswordArray';
+import { CELL_DARK_CHAR } from 'data/consts';
+import { useRef, useEffect, useState } from 'react';
+import { generateCrosswordNum, generateDefaultArray } from 'util/crosswordUtils';
 import styles from './CrosswordGrid.module.scss';
 
 const CrosswordGrid = ({
@@ -36,8 +37,9 @@ const CrosswordGrid = ({
         }
     };
 
+    // TODO: cleanup
     const renderCell = (data, rowIndex, colIndex) => {
-        const isDark = data === '.';
+        const isDark = data === CELL_DARK_CHAR;
         const isActive = activeCell && activeCell[0] === rowIndex && activeCell[1] === colIndex;
         const isMirror =
             highlightMirror &&
@@ -59,7 +61,7 @@ const CrosswordGrid = ({
 
         return (
             <td key={colIndex} className={className} onClick={() => onCellClick(rowIndex, colIndex)}>
-                {numbers && <div className="label">{numbers[rowIndex][colIndex]}</div>}
+                {numbers && <div className={styles.label}>{numbers[rowIndex][colIndex]}</div>}
                 <span>{data}</span>
                 <input value={data || ''} onClick={() => {}} onChange={() => {}} />
             </td>
