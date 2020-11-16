@@ -1,4 +1,4 @@
-import { CELL_DARK_CHAR } from 'data/consts';
+import { CELL_DARK_CHAR, DIR_ACROSS, DIR_DOWN } from 'data/consts';
 
 export const generateDefaultArray = (width, height) => [...Array(height)].map(() => [...Array(width)]);
 
@@ -61,14 +61,14 @@ export const generateCrosswordState = (grid, numbers) => {
             if (y === 0 || (y > 0 && grid[y - 1][x] === CELL_DARK_CHAR)) {
                 const num = numbers[y][x];
                 const value = findActiveWord([y, x], true, grid, numbers);
-                addToList(num, value, 'down', y, x);
+                addToList(num, value, DIR_DOWN, y, x);
             }
 
             // valid across
             if (x === 0 || (x > 0 && grid[y][x - 1] === CELL_DARK_CHAR)) {
                 const num = numbers[y][x];
                 const value = findActiveWord([y, x], false, grid, numbers);
-                addToList(num, value, 'across', y, x);
+                addToList(num, value, DIR_ACROSS, y, x);
             }
         }
     }

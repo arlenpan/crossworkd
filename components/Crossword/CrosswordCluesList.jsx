@@ -1,8 +1,6 @@
+import { DIR_ACROSS, DIR_DOWN } from 'data/consts';
 import CrosswordClue from './CrosswordClue';
 import styles from './CrosswordCluesList.module.scss';
-
-const DIR_ACROSS = 'across';
-const DIR_DOWN = 'down';
 
 const CrosswordCluesList = ({ activeNumber, orientation, crosswordState, clues, setClue }) => {
     const activeOrientation = orientation ? DIR_ACROSS : DIR_DOWN;

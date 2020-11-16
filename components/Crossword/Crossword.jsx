@@ -1,6 +1,6 @@
 import CopyLabel from 'components/CopyLabel';
 import { CELL_DARK_CHAR } from 'data/consts';
-import { subscribePuzzleFB, updatePuzzleFB } from 'data/firebaseAPI';
+import { subscribeCluesFB, subscribeGridFB, subscribePuzzleFB, updatePuzzleFB } from 'data/firebaseAPI';
 import useStateRef from 'hooks/useStateRef';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import {
     generateCrosswordState,
     generateDefaultArray,
 } from 'util/crosswordUtils';
+import { generatePuz } from 'util/downloadPuz';
 import isGridsSame from 'util/isGridsSame';
 import styles from './Crossword.module.scss';
 import CrosswordCluesList from './CrosswordCluesList';
@@ -40,17 +41,8 @@ const Crossword = ({}) => {
         // TODO: control updates by timestamp
         subscribePuzzleFB(puzzleId, 'title', setTitle);
         subscribePuzzleFB(puzzleId, 'author', setAuthor);
-        subscribePuzzleFB(puzzleId, 'grid', (g) => {
-            // diff grids to avoid unnecessary updates
-            const newGrid = JSON.parse(g);
-            const oldGrid = gridRef.current;
-            if (!isGridsSame(newGrid, oldGrid)) setGrid(newGrid);
-        });
-        subscribePuzzleFB(puzzleId, 'clues', (g) => {
-            // diff grids to avoid unnecessary updates
-            const newClues = JSON.parse(g);
-            if (!isGridsSame(newClues, clues)) setClues(newClues);
-        });
+        subscribeGridFB(puzzleId, gridRef, setGrid);
+        subscribeCluesFB(puzzleId, clues, setClues);
 
         // assign kb handler
         document.addEventListener('keydown', onKeyDown);
@@ -61,6 +53,7 @@ const Crossword = ({}) => {
 
     // ON CROSSWORD UPDATES
     useEffect(() => {
+        console.log('-');
         console.log('GRID UPDATE', grid);
 
         if (grid) {
@@ -74,7 +67,7 @@ const Crossword = ({}) => {
             // update state
             const state = generateCrosswordState(grid, newNumbers);
             setCrosswordState(state);
-            console.log(state);
+            console.log('STATE UPDATE', state);
         }
     }, [grid]);
 
@@ -240,6 +233,10 @@ const Crossword = ({}) => {
         setHighlightMirror(!highlightMirror);
     };
 
+    const onDownloadPuzClick = () => {
+        generatePuz(grid, numbers, clues, crosswordState, title, author);
+    };
+
     return (
         <>
             <div className={styles.crosswordHeader}>
@@ -290,7 +287,7 @@ const Crossword = ({}) => {
                 <button onClick={onClearClick}>Clear</button>
                 <button onClick={onMirrorClick}>Mirroring: {mirror ? 'ON' : 'OFF'}</button>
                 <button onClick={onHighlightMirrorClick}>Highlight Mirror: {highlightMirror ? 'ON' : 'OFF'}</button>
-                {/* <button onClick={onDownloadPuzClick}>Export PUZ</button> */}
+                <button onClick={onDownloadPuzClick}>Export PUZ</button>
             </div>
         </>
     );

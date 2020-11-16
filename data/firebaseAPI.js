@@ -1,4 +1,5 @@
 import { generateDefaultArray } from 'util/crosswordUtils';
+import isGridsSame from 'util/isGridsSame';
 import { fbdb } from './firebase';
 
 export const createNewPuzzleFB = () => {
@@ -34,8 +35,25 @@ export const updatePuzzleFB = (puzzleId, keyword, value) => {
 export const subscribePuzzleFB = (puzzleId, keyword, cb) => {
     const ref = fbdb.ref(`puzzles/${puzzleId}/${keyword}`);
     ref.on('value', (snapshot) => {
-        console.log(snapshot);
         const value = snapshot.val();
         cb(value);
+    });
+};
+
+export const subscribeGridFB = (puzzleId, gridRef, setGrid) => {
+    subscribePuzzleFB(puzzleId, 'grid', (g) => {
+        // diff grids to avoid unnecessary updates
+        const newGrid = JSON.parse(g);
+        const oldGrid = gridRef.current;
+        if (!isGridsSame(newGrid, oldGrid)) setGrid(newGrid);
+    });
+};
+
+export const subscribeCluesFB = (puzzleId, clues, setClues) => {
+    // diff grids to avoid unnecessary updates
+    subscribePuzzleFB(puzzleId, 'clues', (g) => {
+        // diff grids to avoid unnecessary updates
+        const newClues = JSON.parse(g);
+        if (!isGridsSame(newClues, clues)) setClues(newClues);
     });
 };
