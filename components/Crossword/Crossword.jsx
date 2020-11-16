@@ -1,11 +1,16 @@
 import CopyLabel from 'components/CopyLabel';
 import { CELL_DARK_CHAR } from 'data/consts';
-import { initializeListenerFB, updatePuzzleFB } from 'data/firebaseAPI';
+import { subscribePuzzleFB, updatePuzzleFB } from 'data/firebaseAPI';
 import useStateRef from 'hooks/useStateRef';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import compareGrids from 'util/compareGrids';
-import { generateCrosswordNum, generateDefaultArray } from 'util/crosswordUtils';
+import {
+    findActiveNumber,
+    generateCrosswordNum,
+    generateCrosswordState,
+    generateDefaultArray,
+} from 'util/crosswordUtils';
+import isGridsSame from 'util/isGridsSame';
 import styles from './Crossword.module.scss';
 import CrosswordCluesList from './CrosswordCluesList';
 import CrosswordGrid from './CrosswordGrid';
@@ -15,39 +20,39 @@ const Crossword = ({}) => {
     const { puzzleId } = router.query;
 
     // GRID STATE
-    const [grid, setGrid, gridRef] = useStateRef(generateDefaultArray(15, 15));
-    const [activeCell, setActiveCell, activeCellRef] = useStateRef(null);
-    const [orientation, setOrientation, orientationRef] = useStateRef(false); // f = row traverse, t = col traverse
-    const [mirror, setMirror, mirrorRef] = useStateRef(true);
+    const [grid, setGrid, gridRef] = useStateRef(); // 2d grid representing crossword
+    const [numbers, setNumbers] = useState(); // 2d grid representing numbers
+    const [clues, setClues] = useState(); // 2d grid representing clues. We track this to maintain clue position if a number changes
 
-    // DATA
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
-    const [clues, setClues] = useState();
-    const [numbers, setNumbers] = useState();
+    const [crosswordState, setCrosswordState] = useState(); // dictionary containing all clues, values to number
+    const [activeCell, setActiveCell, activeCellRef] = useStateRef(null); // [x,y] of active selected cell
 
     // SETTINGS
-    const [highlightMirror, setHighlightMirror] = useState(true);
+    const [title, setTitle] = useState('');
+    const [author, setAuthor] = useState('');
+    const [orientation, setOrientation, orientationRef] = useStateRef(false); // f = row traverse, t = col traverse
+    const [mirror, setMirror, mirrorRef] = useStateRef(true); // bool checking if mirroring is on
+    const [highlightMirror, setHighlightMirror] = useState(true); // bool checking if mirror highlighting is on
 
     // INTIALIZATION
     useEffect(() => {
-        console.log('FIREBASE', puzzleId);
-
         // initialize firebase sync
-        initializeListenerFB(puzzleId, 'grid', (g) => {
+        // TODO: control updates by timestamp
+        subscribePuzzleFB(puzzleId, 'title', setTitle);
+        subscribePuzzleFB(puzzleId, 'author', setAuthor);
+        subscribePuzzleFB(puzzleId, 'grid', (g) => {
             // diff grids to avoid unnecessary updates
-            // TODO: control updates by timestamp
             const newGrid = JSON.parse(g);
             const oldGrid = gridRef.current;
-            const isSame = compareGrids(newGrid, oldGrid);
-            if (!isSame) setGrid(newGrid);
+            if (!isGridsSame(newGrid, oldGrid)) setGrid(newGrid);
+        });
+        subscribePuzzleFB(puzzleId, 'clues', (g) => {
+            // diff grids to avoid unnecessary updates
+            const newClues = JSON.parse(g);
+            if (!isGridsSame(newClues, clues)) setClues(newClues);
         });
 
-        // start listeners for db changes
-        initializeListenerFB(puzzleId, 'title', setTitle);
-        initializeListenerFB(puzzleId, 'author', setAuthor);
-
-        // assign key handler
+        // assign kb handler
         document.addEventListener('keydown', onKeyDown);
         return () => {
             document.removeEventListener('keydown', onKeyDown);
@@ -58,23 +63,20 @@ const Crossword = ({}) => {
     useEffect(() => {
         console.log('GRID UPDATE', grid);
 
-        // check if we need to update numbers
         if (grid) {
+            // check if we need to update numbers
             const newNumbers = generateCrosswordNum(grid);
-            const isSame = compareGrids(newNumbers, numbers);
-            if (!isSame) setNumbers(newNumbers);
+            if (!isGridsSame(newNumbers, numbers)) {
+                console.log('NUMBERS UPDATE', newNumbers);
+                setNumbers(newNumbers);
+            }
+
+            // update state
+            const state = generateCrosswordState(grid, newNumbers);
+            setCrosswordState(state);
+            console.log(state);
         }
     }, [grid]);
-
-    // ON NUMBER UPDATES
-    useEffect(() => {
-        console.log('NUMBERS UPDATE', numbers);
-
-        // check if we need to update clues
-        if (numbers) {
-            
-        }
-    }, [numbers]);
 
     const onKeyDown = (e) => {
         const grid = gridRef.current;
@@ -208,6 +210,20 @@ const Crossword = ({}) => {
         }
     };
 
+    const setClue = (data, x, y, direction) => {
+        const newClues = [...clues];
+        if (!newClues[y][x]) {
+            newClues[y][x] = {
+                down: '',
+                across: '',
+            };
+        }
+
+        newClues[y][x][direction] = data;
+        setClues(newClues);
+        updatePuzzleFB(puzzleId, 'clues', JSON.stringify(newClues));
+    };
+
     // HANDLERS
 
     const onClearClick = () => {
@@ -262,11 +278,11 @@ const Crossword = ({}) => {
                     setOrientation={setOrientation}
                 />
                 <CrosswordCluesList
-                    activeCell={activeCell}
-                    numbers={numbers}
+                    activeNumber={findActiveNumber(activeCell, orientation, numbers)}
                     orientation={orientation}
+                    crosswordState={crosswordState}
                     clues={clues}
-                    setClues={setClues}
+                    setClue={setClue}
                 />
             </div>
 

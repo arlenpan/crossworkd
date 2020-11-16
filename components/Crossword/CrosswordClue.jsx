@@ -1,14 +1,14 @@
-import React, { useEffect, useRef } from 'react';
-// import { MEDIA_BREAKPOINT_MD } from '../styles/mediaQuery';
+import { useEffect, useRef } from 'react';
+import styles from './CrosswordClue.module.scss';
 
 const CrosswordClue = ({ number, word, clue, isActive, onChange, windowSize }) => {
     const ref = useRef();
 
-    // useEffect(() => {
-    //     if (isActive && windowSize?.width > MEDIA_BREAKPOINT_MD) {
-    //         ref.current.scrollIntoView({ behavior: 'smooth' });
-    //     }
-    // }, [isActive]);
+    useEffect(() => {
+        if (isActive) {
+            ref.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [isActive]);
 
     const onInputChange = (e) => {
         const value = e.target.value;
@@ -16,7 +16,7 @@ const CrosswordClue = ({ number, word, clue, isActive, onChange, windowSize }) =
     };
 
     return (
-        <div className={isActive ? 'active' : ''} ref={ref}>
+        <div className={isActive ? styles.active : ''} ref={ref}>
             <h4>
                 {number}: {word} ({word.length})
             </h4>

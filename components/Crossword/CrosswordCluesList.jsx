@@ -1,50 +1,49 @@
-import React, { useRef } from 'react';
-// import useWindowSize from '../hooks/useWindowSize';
 import CrosswordClue from './CrosswordClue';
 import styles from './CrosswordCluesList.module.scss';
 
-const CrosswordCluesList = ({ activeCell, numbers, orientation, clues, setClues }) => {
-    // const windowSize = useWindowSize();
+const DIR_ACROSS = 'across';
+const DIR_DOWN = 'down';
 
-    const renderList = (orientationDown) => {
-        const direction = orientationDown ? 'down' : 'across';
-        return <div className="crossword-clues-list">
-            
-        </div>;
+const CrosswordCluesList = ({ activeNumber, orientation, crosswordState, clues, setClue }) => {
+    const activeOrientation = orientation ? DIR_ACROSS : DIR_DOWN;
+
+    const renderList = (direction) => {
+        return (
+            <div className={styles.crosswordCluesList}>
+                {crosswordState &&
+                    Object.keys(crosswordState).map((num) => {
+                        const { x, y } = crosswordState[num];
+                        const clue = clues?.[y]?.[x]?.[direction] || '';
+                        const isActive = activeNumber === parseInt(num) && direction === activeOrientation;
+
+                        if (crosswordState[num][direction]) {
+                            const word = crosswordState[num][direction].value;
+                            return (
+                                <CrosswordClue
+                                    key={num}
+                                    number={num}
+                                    word={word}
+                                    clue={clue}
+                                    isActive={isActive}
+                                    onChange={(val) => setClue(val, x, y, direction)}
+                                />
+                            );
+                        }
+                        return null;
+                    })}
+            </div>
+        );
     };
-
-    //         {Object.keys(crosswordState).map((num) => {
-    //             const value = crosswordState[num];
-    //             const { x, y } = value;
-    //             const clue = clues?.[y]?.[x]?.[direction] || '';
-    //             const isActive = activeNumber === parseInt(num) && orientation !== orientationDown;
-
-    //             if (value[direction]) {
-    //                 const word = value[direction].value;
-    //                 return (
-    //                     <CrosswordClue
-    //                         key={num}
-    //                         number={num}
-    //                         word={word}
-    //                         clue={clue}
-    //                         isActive={isActive}
-    //                         onChange={(val) => setClue(val, x, y, direction)}
-    //                         // windowSize={windowSize}
-    //                     />
-    //                 );
-    //             }
-    //             return null;
-    //         })}
 
     return (
         <div className={styles.crosswordClues}>
             <div>
                 <h3>ACROSS</h3>
-                {renderList(false)}
+                {renderList(DIR_ACROSS)}
             </div>
             <div>
                 <h3>DOWN</h3>
-                {renderList(true)}
+                {renderList(DIR_DOWN)}
             </div>
         </div>
     );
