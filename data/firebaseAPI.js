@@ -57,3 +57,11 @@ export const subscribeCluesFB = (puzzleId, clues, setClues) => {
         if (!isGridsSame(newClues, clues)) setClues(newClues);
     });
 };
+
+export const updateGridFB = (puzzleId, grid) => {
+    updatePuzzleFB(puzzleId, 'grid', JSON.stringify(grid));
+};
+
+export const updateCluesFb = (puzzleId, clues) => {
+    updatePuzzleFB(puzzleId, 'clues', JSON.stringify(clues));
+};

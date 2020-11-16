@@ -1,6 +1,6 @@
 import CopyLabel from 'components/CopyLabel';
 import { CELL_DARK_CHAR } from 'data/consts';
-import { subscribeCluesFB, subscribeGridFB, subscribePuzzleFB, updatePuzzleFB } from 'data/firebaseAPI';
+import { subscribeCluesFB, subscribeGridFB, subscribePuzzleFB, updateCluesFb, updateGridFB } from 'data/firebaseAPI';
 import useStateRef from 'hooks/useStateRef';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -20,17 +20,18 @@ const Crossword = ({}) => {
     const router = useRouter();
     const { puzzleId } = router.query;
 
-    // GRID STATE
-    const [grid, setGrid, gridRef] = useStateRef(); // 2d grid representing crossword
-    const [numbers, setNumbers] = useState(); // 2d grid representing numbers
-    const [clues, setClues] = useState(); // 2d grid representing clues. We track this to maintain clue position if a number changes
-
-    const [crosswordState, setCrosswordState] = useState(); // dictionary containing all clues, values to number
-    const [activeCell, setActiveCell, activeCellRef] = useStateRef(null); // [x,y] of active selected cell
-
-    // SETTINGS
+    // GRID STATE (synced with Firebase)
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
+    const [grid, setGrid, gridRef] = useStateRef(); // 2d grid representing crossword
+    const [clues, setClues] = useState(); // 2d grid representing clues. We track this to maintain clue position if a number changes
+
+    // derived state
+    const [numbers, setNumbers] = useState(); // 2d grid representing numbers
+    const [crosswordState, setCrosswordState] = useState(); // dictionary containing all clues, values to number
+
+    // SETTINGS
+    const [activeCell, setActiveCell, activeCellRef] = useStateRef(null); // [x,y] of active selected cell
     const [orientation, setOrientation, orientationRef] = useStateRef(false); // f = row traverse, t = col traverse
     const [mirror, setMirror, mirrorRef] = useStateRef(true); // bool checking if mirroring is on
     const [highlightMirror, setHighlightMirror] = useState(true); // bool checking if mirror highlighting is on
@@ -53,7 +54,7 @@ const Crossword = ({}) => {
 
     // ON CROSSWORD UPDATES
     useEffect(() => {
-        console.log('-');
+        console.log('');
         console.log('GRID UPDATE', grid);
 
         if (grid) {
@@ -199,7 +200,7 @@ const Crossword = ({}) => {
 
         if (hasUpdate) {
             setGrid(newGrid);
-            updatePuzzleFB(puzzleId, 'grid', JSON.stringify(newGrid));
+            updateGridFB(puzzleId, newGrid);
         }
     };
 
@@ -214,7 +215,7 @@ const Crossword = ({}) => {
 
         newClues[y][x][direction] = data;
         setClues(newClues);
-        updatePuzzleFB(puzzleId, 'clues', JSON.stringify(newClues));
+        updateCluesFb(puzzleId, newClues);
     };
 
     // HANDLERS
@@ -222,7 +223,7 @@ const Crossword = ({}) => {
     const onClearClick = () => {
         const grid = generateDefaultArray(15, 15);
         setGrid(grid);
-        updatePuzzleFB(puzzleId, 'grid', JSON.stringify(grid));
+        updateGridFB(puzzleId, grid);
     };
 
     const onMirrorClick = () => {
