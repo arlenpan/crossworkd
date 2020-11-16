@@ -9,7 +9,7 @@ const firebaseConfig = {
     projectId: 'crossworkd',
     storageBucket: 'crossworkd.appspot.com',
     messagingSenderId: '982812516511',
-    appId: '1:982812516511:web:93bfc0960ebe5c0a76c2aa',
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
     measurementId: 'G-3XHCS4R05W',
 };
 
