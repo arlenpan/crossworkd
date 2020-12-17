@@ -1,0 +1,39 @@
+@mixin absolute {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+
+.modal {
+    @include absolute();
+}
+
+.backdrop {
+    @include absolute();
+    background: black;
+    opacity: 0.5;
+}
+
+.modalWrapper {
+    @include absolute();
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalInner {
+    background: white;
+    padding: 1rem;
+    border: 1px solid gray;
+    display: flex;
+    flex-direction: column;
+    min-width: 10rem;
+}
+
+.closeButton {
+    border: none;
+    font-size: 1rem;
+    padding: 0;
+}

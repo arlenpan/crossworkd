@@ -15,6 +15,7 @@ import isGridsSame from 'util/isGridsSame';
 import styles from './Crossword.module.scss';
 import CrosswordCluesList from './CrosswordCluesList';
 import CrosswordGrid from './CrosswordGrid';
+import CrosswordSettings from './CrosswordSettings';
 
 const Crossword = ({}) => {
     const router = useRouter();
@@ -35,6 +36,7 @@ const Crossword = ({}) => {
     const [orientation, setOrientation, orientationRef] = useStateRef(false); // f = row traverse, t = col traverse
     const [mirror, setMirror, mirrorRef] = useStateRef(true); // bool checking if mirroring is on
     const [highlightMirror, setHighlightMirror] = useState(true); // bool checking if mirror highlighting is on
+    const [showSettings, setShowSettings] = useState(false);
 
     // INTIALIZATION
     useEffect(() => {
@@ -238,6 +240,10 @@ const Crossword = ({}) => {
         generatePuz(grid, numbers, clues, crosswordState, title, author);
     };
 
+    const onEditSettings = () => {
+        setShowSettings(true);
+    };
+
     return (
         <>
             <div className={styles.crosswordHeader}>
@@ -289,7 +295,10 @@ const Crossword = ({}) => {
                 <button onClick={onMirrorClick}>Mirroring: {mirror ? 'ON' : 'OFF'}</button>
                 <button onClick={onHighlightMirrorClick}>Highlight Mirror: {highlightMirror ? 'ON' : 'OFF'}</button>
                 <button onClick={onDownloadPuzClick}>Export PUZ</button>
+                <button onClick={onEditSettings}>Settings</button>
             </div>
+
+            {showSettings && <CrosswordSettings onClose={() => setShowSettings(false)} />}
         </>
     );
 };
